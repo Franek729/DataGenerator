@@ -4,6 +4,10 @@ from Data import *
 import csv
 import os
 
+unique_pesels = set()
+generated_policy_ids = set()
+generated_claim_ids = set()
+
 def generate_birth_date():
     year = random.randint(1940, 2006)
     start_date = datetime(year, 1, 1)
@@ -15,25 +19,28 @@ def generate_birth_date():
     return random_date.date()
 
 def generate_pesel(birth_date, sex):
-    year = birth_date.year
-    month = birth_date.month
-    day = birth_date.day
+    while True:
+        year = birth_date.year
+        month = birth_date.month
+        day = birth_date.day
 
-    if year >= 2000:
-        month += 20
+        if year >= 2000:
+            month += 20
 
-    serial = random.randint(0, 999)
+        serial = random.randint(0, 999)
 
-    gender_digit = random.choice([0, 2, 4, 6, 8]) if sex == 'F' else random.choice([1, 3, 5, 7, 9])
+        gender_digit = random.choice([0, 2, 4, 6, 8]) if sex == 'F' else random.choice([1, 3, 5, 7, 9])
 
-    pesel = f"{year % 100:02d}{month:02d}{day:02d}{serial:03d}{gender_digit}"
+        pesel = f"{year % 100:02d}{month:02d}{day:02d}{serial:03d}{gender_digit}"
 
-    weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3]
-    checksum = sum(int(pesel[i]) * weights[i] for i in range(10)) % 10
-    checksum = (10 - checksum) % 10
-    pesel += str(checksum)
+        weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3]
+        checksum = sum(int(pesel[i]) * weights[i] for i in range(10)) % 10
+        checksum = (10 - checksum) % 10
+        pesel += str(checksum)
 
-    return pesel
+        if pesel not in unique_pesels:
+            unique_pesels.add(pesel)
+            return pesel
 
 def generate_phone_number():
     return f"48{random.randint(501000000, 819999999)}"
@@ -68,14 +75,20 @@ def generate_customer():
     return customers
 
 def generate_adjuster():
+    unique_names1 = set()
     for _ in range(number_of_adjusters):
-        name = random.choice(possible_names)
-        sex = 'F' if name[-1] == 'a' else 'M'
-        surname = generate_surname(sex)
+        while True:
+            name = random.choice(possible_names)
+            sex = 'F' if name[-1] == 'a' else 'M'
+            surname = generate_surname(sex)
+            specialization=random.choice(possible_specialization)
+            full_name = name + ' ' + surname
+            if full_name not in unique_names1:
+                unique_names1.add(full_name)
+                break
         email = name.lower() + '.' + surname.lower() + '@gmail.com'
-        specialization=random.choice(possible_specialization)
         adjuster = {
-            "name": name + ' ' + surname,
+            "name": full_name,
             "email": email,
             "specialization":specialization
         }
@@ -85,10 +98,16 @@ def generate_adjuster():
         
 
 def generate_agent():
+    unique_names2 = set()
     for _ in range(number_of_agents):
-        name = random.choice(possible_names)
-        sex = 'F' if name[-1] == 'a' else 'M'
-        surname = generate_surname(sex)
+        while True:
+            name = random.choice(possible_names)
+            sex = 'F' if name[-1] == 'a' else 'M'
+            surname = generate_surname(sex)
+            full_name = name + ' ' + surname
+            if full_name not in unique_names2:
+                unique_names2.add(full_name)
+                break
         email = name.lower() + '.' + surname.lower() + '@gmail.com'
         agent = {
             "name": name + ' ' + surname,
@@ -102,7 +121,12 @@ def generate_agent():
 
 def generate_policy():
     for _ in range(number_of_policies):
-        policy_id = random.randint(100000, 999999)
+        while True:
+            policy_id = random.randint(100000, 999999)
+            if policy_id not in generated_policy_ids:
+                generated_policy_ids.add(policy_id)
+                break
+
         start_date = datetime(random.randint(2010, 2020), random.randint(1, 12), random.randint(1, 28))
         end_date = start_date + timedelta(days=random.randint(1, 365))
         coverage = random.choice(possible_coverage_details)
@@ -132,7 +156,12 @@ def generate_policy():
 
 def generate_claim():
     for _ in range(number_of_claims):
-        claim_id = random.randint(100000, 999999)
+        while True:
+            claim_id = random.randint(100000, 999999)
+            if claim_id not in generated_claim_ids:
+                generated_claim_ids.add(claim_id)
+                break
+
         status = random.choice(possible_status)
         claim = {
             "claim_id": claim_id,
