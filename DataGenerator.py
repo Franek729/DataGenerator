@@ -7,6 +7,8 @@ import os
 unique_pesels = set()
 generated_policy_ids = set()
 generated_claim_ids = set()
+unique_names1 = set()
+unique_names2 = set()
 
 def generate_birth_date():
     year = random.randint(1940, 2006)
@@ -75,7 +77,6 @@ def generate_customer():
     return customers
 
 def generate_adjuster():
-    unique_names1 = set()
     for _ in range(number_of_adjusters):
         while True:
             name = random.choice(possible_names)
@@ -98,7 +99,6 @@ def generate_adjuster():
         
 
 def generate_agent():
-    unique_names2 = set()
     for _ in range(number_of_agents):
         while True:
             name = random.choice(possible_names)
